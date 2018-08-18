@@ -2,6 +2,8 @@ package main // declare our package name
 
 //IMPORT packages
 import (
+	// used to work with json data
+	"encoding/json"
 	"fmt"                // used to print
 	function "functions" // import another .go file and declare it as "function". This imports from your $GOPATH/src/FOLDER_NAME
 	"reflect"            // package for checking types easily
@@ -18,9 +20,15 @@ type person struct {
 	age   int
 }
 
+type car struct {
+	Year  int
+	Color string
+	Make  string
+}
+
 // to create a method for our struct, we simply create a function that takes a struct as the param
 func (p person) birthYear() string { // here we have a birthYear function that takes a person struct and outputs a string value
-	return "Person (struct): " + p.first + " " + p.last + " " + strconv.Itoa(p.age)
+	return "Person (struct): " + p.first + " " + p.last + ", and they were born in the year: " + strconv.Itoa(2018-p.age)
 }
 
 var ( // declare multiple vars
@@ -29,6 +37,17 @@ var ( // declare multiple vars
 	stringslice  = []string{"This", "comes", "from", "a", "slice"}
 	stringSlice2 = []string{"I", "am", "also", "from", "a", "slice"}
 	multiSlice   = [][]string{stringslice, stringSlice2} // here we create a multi dimentional slice comprised of two other slices of the same type
+	c1           = car{
+		Year:  1969,
+		Color: "red",
+		Make:  "Caddy",
+	}
+	c2 = car{
+		Year:  1990,
+		Color: "yellow",
+		Make:  "Honda",
+	}
+	cars = []car{c1, c2}
 )
 
 const ( // declare constant values
@@ -107,10 +126,20 @@ func main() {
 		age:   27,
 	}
 
-	fmt.Println(p1.birthYear()) // print out the result of our BirthYear person method
-	fmt.Println()
+	defer printBirthYear(p1) // Used the defer keyword to run our function at the end of our func main
 
 	forLoop(intSlice) // call our forLoop function to loop over the slice
+
+	func() {
+		fmt.Println()
+		fmt.Println("I'm here because of a self executing (anonymous) func!")
+		fmt.Println()
+		fmt.Println("Below is our factorial function")
+		factorial(4, 3)
+		fmt.Println()
+	}()
+
+	structToJSON(cars)
 }
 
 // main.go defined functions
@@ -120,4 +149,33 @@ func forLoop(value []int) {
 		// For every itteration print the type of the value, the index in the slice and it's value
 		fmt.Println("IntSlice Index: ", i, "\n", "IntSlice Value: ", v)
 	}
+}
+
+func printBirthYear(p person) {
+	fmt.Println()
+	fmt.Println("Person struct being called by defer: ", p.birthYear())
+}
+
+// A recursive function that calls itself!
+func factorial(factor int, total int) int {
+	if total == 0 {
+		return 1
+	}
+	fmt.Println(factor, " * ", total, " = ")
+	factor *= total
+	fmt.Println(factor)
+	total--
+	return factor * factorial(factor, total)
+}
+
+func structToJSON(c []car) {
+	jsonData, err := json.Marshal(c)
+	if err != nil { // if error, print the error
+		fmt.Println(err)
+	}
+	fmt.Println()
+	fmt.Println("Struct converted to JSON: ", string(jsonData))
+
+	fmt.Println(reflect.TypeOf(jsonData))
+	// jsonToStruct(jsonData)
 }
